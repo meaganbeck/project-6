@@ -116,12 +116,35 @@
          <script type="text/javascript">
             var SCRIPT_ROOT = {{ request.script_root|tojson|safe }} ;
             var TIME_CALC_URL = SCRIPT_ROOT + "/_calc_times";
-	    var FETCH_URL = SCRIPT_ROOT + "/fetch_brevet";
-	    var SAVE_URL = SCRIPT_ROOT + "/insert_brevet";
+	    var FETCH_URL = SCRIPT_ROOT + "/fetch";
+	    var SAVE_URL = SCRIPT_ROOT + "/insert";
 
 
             function calc_times(control) {
-		
+              var km = control.find("input[name='km']").val();
+              var open_time_field = control.find("input[name='open']");
+              var close_time_field = control.find("input[name='close']");
+	      
+	      var start_time = $("#begin_date").val()
+	      	    
+
+	      var brevet_dist = $("#brevet_dist_km").val()
+		    $.getJSON(TIME_CALC_URL, {km: km}, {brevet_distance: brevet_dist}, {brevet_start_time: start_time}).done(
+                function(data) {
+                   var times = data.result;
+                   console.log("Got a response: ");
+                   console.log("Response.open = " + times.open);
+                   
+		   open_time_field.val(moment(times.open).format("YYYY-MM-DDTHH:mm"));
+                   close_time_field.val(moment(times.close).format("YYYY-MM-DDTHH:mm"));
+                 }
+               ).fail(function(err){
+                 // In case you get an error...
+                 console.log("Error!");
+                 console.log(err);
+               });
+            }
+
 	      $(document).ready(function(){
 		    
                 $('#insert').click(
@@ -129,26 +152,26 @@
                         event.preventDefault();
 	      		var start_time = $("input[name = 'begin_date']").val()
 	      		var brevet_dist = $("input[name = 'brevet_dist_km']").val()
-                        var controls = [];
+                        var checkpoints = [];
                         $('.control').each(function() { //read km etc
                             var item = $(this);
               		    var km = item.find("input[name='km']").val();
-              		    var open_time_field = item.find("input[name='open']");
-              		    var close_time_field = item.find("input[name='close']");
+              		    var open_time_field = item.find("input[name='open']").val();
+              		    var close_time_field = item.find("input[name='close']").val();
                             if (km) {
-                                control_json = {
+                                checkpoints_json = {
                                     "km": km, 
                                     "open_time_field": open_time_field,
 				    "close_time_field": close_time_field
                                 }
-                                controls.push(control_json);
+                                checkpoints.push(checkpoints_json);
                             }
                         });
                         // Construct the data we will be sending Flask
                         var control_list = {
 			    "start_time": start_time,
 			    "brevet_dist":brevet_dist,
-                            "items": items}; //with km, open_Time, close_time
+                            "checkpoints": checkpoints}; //with km, open_Time, close_time
                         $.ajax({
                           dataType: 'json', // expected output format (getJSON sets this as well)
                           contentType: "application/json",
@@ -168,20 +191,24 @@
                           error: function(err){
                            console.log("Error: ", err); }
                         });
-                    }
-                );
+                    
+	      });
+
+		//maybe copy over $(document).ready(function()
+		//added this, idk about it
+		var data_to_flask = {km:km, open_time:open_time, close_time:close_time};	      
 
                 $('#fetch').click(
                     function(event) {
                         
-			 $.getJSON(FETCH_URL).done(
+			 $.getJSON(FETCH_URL, data_to_flask).done( //added data_to_flask
                           function(data) {
                              console.log(data);
                               if (data.status == 1) {
                                   console.log("Successfully fetched: ", data);
 	      			  var start_time = $("input[name = 'begin_date']").val()
 	      			  var brevet_dist = $("input[name = 'brevet_dist_km']").val()
-				  var controls = data.result.controls;
+				  var checkpoints = data.result.checkpoints;
                                   var num_items = controls.length  
                                   $('.control').each(function(index) {
                                       var litem = $(this); // This is our row
@@ -191,12 +218,12 @@
                                       litem.find("input[name='close_time']").val('');
                                       // Check if we're already done?
                                       if (index < num_items) {
-                                          litem.find("input[name='km']").val(controls[index].description);
-                                          litem.find("input[name='open_time']").val(controls[index].priority);
-                                          litem.find("input[name='close_time']").val(controls[index].priority);
+                                          litem.find("input[name='km']").val(controls[index].km);
+                                          litem.find("input[name='open_time']").val(controls[index].open_time);
+                                          litem.find("input[name='close_time']").val(controls[index].close_time);
                                       }
                                   });
-		 }
+			      }
                               else {
                                   console.log("Fetch failed: ", data);
                               }
@@ -205,8 +232,33 @@
                            // In case you get an error...
                            console.log("Error: ", err);
                          });
-                    }
-                );
+
+		    });
+
+
+                $('input[name="miles"]').change(
+                   function() {
+                       var miles = parseFloat($(this).val());
+                       var km = (1.609344 * miles).toFixed(6) ;
+		       console.log("Converted " + miles + " miles to " + km + " kilometers");
+                       var control_entry = $(this).parents(".control")
+                       var target = control_entry.find("input[name='km']");
+                       target.val( km );
+                       // Then calculate times for this entry
+                       calc_times(control_entry);
+                    });
+
+                $('input[name="km"]').change(
+                   function() {
+                       var km = parseFloat($(this).val());
+                       var miles = (0.621371 * km).toFixed(6) ;
+                       console.log("Converted " + km + " km to " + miles + " miles");
+                       var control_entry = $(this).parents(".control")
+                       var target = control_entry.find("input[name='miles']");
+                       target.val( miles );
+                       // Then calculate times for this entry
+                       calc_times(control_entry);
+                    });
 
                });
 

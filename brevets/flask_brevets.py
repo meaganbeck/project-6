@@ -3,56 +3,48 @@ Replacement for RUSA ACP brevet time calculator
 (see https://rusa.org/octime_acp.html)
 
 """
-import requests
 
 import flask
 from flask import request
 import arrow  # Replacement for datetime, based on moment.js
 import acp_times  # Brevet time calculations
-
-app = flask.Flask(__name__)
-app.debug = True
-app.logger.setLevel(logging.DEBUG)
-
-api_host = os.environ["API_ADDR"]
-api_port = os.environ["API_PORT"]
-
-api_url = f"http://{api_host}:{api_port}/api/}"
+from mymongo import insert_brevet, get_brevet
+import config
 
 import logging
 
-def insert_brevet(brevet_dist, start_time, controls):
-    brevet = {"brevet_dist":brevet_dist,
-              "start_time": start_time,
-              "controls": controls}
-    controls = requests.post(f"{api_url}/brevets", json=brevet).json()
-    
-    return ""
-
-
-
-def get_brevet():
-    #idk if controls
-    controls = requests.get(f"{api_url}/brevets").json()
-    for control in controls:
-        #controls wrong
-        return control["brevet_dist"], control["start_time"], control["controls"]
 ###
 # Globals
 ###
 app = flask.Flask(__name__)
-#CONFIG = config.configuration()
+CONFIG = config.configuration()
 
-###
-# Pages
-###
+API_ADDR= os.environ["API_ADDR"]
+API_PORT = os.environ["API_PORT"]
+API_URL = f"http://{API_ADDR}:{API_PORT}/api/"
+
+
+#---------------------------------
+
+def get_brevet():
+    
+    controls = requests.get(f"{API_URL}/brevets")   
+    #for control in controls:
+    return lists[-1]
+
+def insert_brevet(brevet_dist, start_time, checkpoints):
+    #output = collection.insert_one({
+    #    "title": title,
+    #    "items": items})
+    #_id = output.inserted_id
+    _id  = requests.post(f"{API_URL}/brevets", json={"brevet_dist": brevet_dist, "start_time":start_time, "checkpoints" : checkpoints})
+    return _id
 
 
 @app.route("/")
-@app.route("/index")
 def index():
     app.logger.debug("Main page entry")
-#    return flask.render_template('calc.html')
+    return flask.render_template('calc.html')
 
 ###############
 #
@@ -75,56 +67,55 @@ def _calc_times():
     app.logger.debug("brev_dist={}".format(brevet_distance))
     app.logger.debug("start_time={}".format(start_time))
     app.logger.debug("request.args: {}".format(request.args))
-    # FIXME!
-    # Right now, only the current time is passed as the start time
-    # and control distance is fixed to 200
-    # You should get these from the webpage!
+     #FIXME!
+     #Right now, only the current time is passed as the start time
+     #and control distance is fixed to 200
+     #You should get these from the webpage!
     open_time = acp_times.open_time(km, brevet_distance, arrow.get(start_time, 'YYYY-MM-DDTHH:mm'))
     close_time = acp_times.close_time(km, brevet_distance, arrow.get(start_time, 'YYYY-MM-DDTHH:mm')) #maybe end_time...
     result = {"open": open_time, "close": close_time}
     return flask.jsonify(result=result)
 
-@app.route('/insert/', method=['POST']) #where is this shit coming from?
-def insert_brevet(brevet_dist, start_time, controls):
-    output = collection.insert_one({"controls": controls, "brevet_dist":brevet_dist, "start_time":start_time})
-    #_id = output.inserted_id
-    return output
-    open_time = request.json['open_time'],
-    close_time = request.json['close_time'],
-    km = request.json['km']
 
-    controls_id = set_control(brevet_dist, start_time, controls)
+@app.route('/insert/', method=['POST']) #where is this shit coming from?
+def insert(brevet_dist, start_time, checkpoints):
+    try:
+    checkpoints = request.json['checkpoints']
+    start_time = request.json['start_time']
+    brevet_dist = request.json['brevet_dist']
+
+    checkpoints_id = insert_brevet(brevet_dist, start_time, checkpoints)
     #db.insert_one(brevet_dist, start_time, controls)
         return flask.jsonify(
             result = {},
             status = 1,
             message = "inserted",
-            mongo_id = controls_id)
+            mongo_id = checkpoints_id)
     except:
         return flask.jsonify(
             result = {},
             status = 0,
-            message = "naur. bad",
+            message = "Server error",
             mongo_id = 'None')
     
 
 @app.route('/fetch')
-def get_brevet():
+def fetch():
     try:
-        controls, brevet_dist, start_time = get_control()
+        checkpoints, brevet_dist, start_time = get_brevet()
     #brevet_dist, start_time, items = db.find(item_doc)
     
         return flask.jsonify(
-            result = {'brevet_dist' : brevet_dist, 'start_time' : start_time, 'controls' : controls},
+            result = {'brevet_dist' : brevet_dist, 'start_time' : start_time, 'checkpoints' : checkpoints},
             status = 1,
             message = "got the data"
             )
     except:
-        return flask.jsonify(result = {"brevet_dist": 200, "start_time": arrow.now().format("YYY-MM-DDTHH:mm"), "controls": []}, status = 0)
+        return flask.jsonify(result = {"brevet_dist": 200, "start_time": arrow.now().format("YYY-MM-DDTHH:mm"), "checkpoints": []}, status = 0)
 
-app.debug = os.environ["DEBUG"]
+app.debug = CONFIG.DEBUG
 if app.debug:
     app.logger.setLevel(logging.DEBUG)
 
 if __name__ == "__main__":
-    app.run(port = os.environ["PORT"], host='0.0.0.0') #maybe add port?
+    app.run(port=portnum, host="0.0.0.0")

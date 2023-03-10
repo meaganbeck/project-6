@@ -7,6 +7,24 @@ from flask_restful import Resource
 # You need to implement this in database/models.py
 from database.models import Brevet
 
+class Brevet(Resource):
+    def get(self, _id):
+        json = Brevet.objects().to_json()
+        #check later (dont know where these values are coming from so yeh
+        return {'brevet_dist' : brevet_dist, 'start_time': start_time, controls :[{open_time: "open_time", close_time: "close_time", km: "km"]}, 200
+
+    def put(self, _id):
+                #TODO: stuff
+                
+    def delete(self, _id):
+                #TODO:stuff
+    #PASS down the request to the mongo engine document class. the data scheme defined. 
+                #make sure keys match. flask_brevets requesting to insert "start_time" = something
+                #start_time has to be defined exactly in mongo engine
+
+
+
+
 # MongoEngine queries:
 # Brevet.objects() : similar to find_all. Returns a MongoEngine query
 # Brevet(...).save() : creates new brevet
