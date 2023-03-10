@@ -10,19 +10,19 @@ from database.models import Brevet
 class Brevets(Resource):
     def get(self):
         #objects?
-        json = Brevets.object().to_json()
+        json = Brevets.objects().to_json()
         return Response(json,mimetype ="application/json", status =200 )
         #check later (dont know where these values are coming from so yeh
 
     def post(self):
-        input_json = request.json
         
         length = input_json["brevet_length"]
         start_time = input_json["start_time"]
         checkpoints = input_json["checkpoints"]
-        #maybe check to brevet length and s
+        result = Brevet(**input_json).save()
+        
         Brevet(length = length, start_time = start_time, checkpoints = checkpoints).save()
-        return {'_id':""}, 200
+        return {'_id':str(result.id)}, 200
 
 # MongoEngine queries:
 # Brevet.objects() : similar to find_all. Returns a MongoEngine query

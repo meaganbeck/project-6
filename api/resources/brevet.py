@@ -9,20 +9,21 @@ from database.models import Brevet
 
 class Brevet(Resource):
     def get(self, _id):
-        json = Brevet.objects().to_json()
+        brevet = Brevet.objects.get(id= _id).to_json()
+        #json = Brevet.objects().to_json()
         #check later (dont know where these values are coming from so yeh
-        return {'brevet_dist' : brevet_dist, 'start_time': start_time, controls :[{open_time: "open_time", close_time: "close_time", km: "km"]}, 200
-
+        #return {'brevet_dist' : brevet_dist, 'start_time': start_time, controls :[{open_time: "open_time", close_time: "close_time", km: "km"]}, 200
+        return = Response(brevet, mimetype="application/json", status=200)
     def put(self, _id):
-                #TODO: stuff
+            #input = request.get_json()
+            input = request.json
+            Brevet.objects.get(id=_id).update(**input_json)
+            return '', 200
+
                 
     def delete(self, _id):
-                #TODO:stuff
-    #PASS down the request to the mongo engine document class. the data scheme defined. 
-                #make sure keys match. flask_brevets requesting to insert "start_time" = something
-                #start_time has to be defined exactly in mongo engine
-
-
+            Brevet.objects.get(id = _id).delete()
+            return '',200
 
 
 # MongoEngine queries:

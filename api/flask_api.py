@@ -27,7 +27,8 @@ app.logger.setLevel(logging.DEBUG)
 
 api = Api(app)
 
-api.add_resource(Brevet, "/api/brevet")
+api.add_resource(Brevet, "/api/brevet/<id>")
+api.add_resource(Brevets, "/api/brevets")
 
 API_ADDR= os.environ["API_ADDR"]
 API_PORT = os.environ["API_PORT"]

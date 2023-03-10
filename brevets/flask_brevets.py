@@ -17,6 +17,9 @@ import logging
 # Globals
 ###
 app = flask.Flask(__name__)
+app.debug = True if "DEBUG" not in os.environ else os.environ["DEBUG"]
+port_num = True if "PORT" not in os.environ else os.environ["PORT"]
+app.logger.setLevel(logging.DEBUG)
 CONFIG = config.configuration()
 
 API_ADDR= os.environ["API_ADDR"]
@@ -28,16 +31,17 @@ API_URL = f"http://{API_ADDR}:{API_PORT}/api/"
 
 def get_brevet():
     
-    controls = requests.get(f"{API_URL}/brevets")   
-    #for control in controls:
-    return lists[-1]
+    checkpoints = requests.get(f"{API_URL}/brevets").json() 
+
+    brevets = checkpoints[-1]
+    return brevets["brevet_dist"], brevets["start_time"], brevets["checkpoints"]
 
 def insert_brevet(brevet_dist, start_time, checkpoints):
     #output = collection.insert_one({
     #    "title": title,
     #    "items": items})
     #_id = output.inserted_id
-    _id  = requests.post(f"{API_URL}/brevets", json={"brevet_dist": brevet_dist, "start_time":start_time, "checkpoints" : checkpoints})
+    _id  = requests.post(f"{API_URL}/brevets", json={"brevet_dist": brevet_dist, "start_time":start_time, "checkpoints" : checkpoints}).json()
     return _id
 
 
