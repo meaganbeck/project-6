@@ -37,10 +37,6 @@ def get_brevet():
     return brevets["brevet_dist"], brevets["start_time"], brevets["checkpoints"]
 
 def insert_brevet(brevet_dist, start_time, checkpoints):
-    #output = collection.insert_one({
-    #    "title": title,
-    #    "items": items})
-    #_id = output.inserted_id
     _id  = requests.post(f"{API_URL}/brevets", json={"brevet_dist": brevet_dist, "start_time":start_time, "checkpoints" : checkpoints}).json()
     return _id
 
@@ -65,23 +61,23 @@ def _calc_times():
     """
     app.logger.debug("Got a JSON request")
     km = request.args.get('km', 999, type=float)
-    brevet_distance = request.args.get('brevet_distance', 999, type=float)#dded
+    brevet_dist = request.args.get('brevet_dist', 999, type=float)#dded
     start_time = request.args.get('start_time', type=str) #added. passes to acp times. convert to arrow object before passing below in open/close times. 
     app.logger.debug("km={}".format(km))
-    app.logger.debug("brev_dist={}".format(brevet_distance))
+    app.logger.debug("brev_dist={}".format(brevet_dist))
     app.logger.debug("start_time={}".format(start_time))
     app.logger.debug("request.args: {}".format(request.args))
      #FIXME!
      #Right now, only the current time is passed as the start time
      #and control distance is fixed to 200
      #You should get these from the webpage!
-    open_time = acp_times.open_time(km, brevet_distance, arrow.get(start_time, 'YYYY-MM-DDTHH:mm'))
-    close_time = acp_times.close_time(km, brevet_distance, arrow.get(start_time, 'YYYY-MM-DDTHH:mm')) #maybe end_time...
+    open_time = acp_times.open_time(km, brevet_dist, arrow.get(start_time, 'YYYY-MM-DDTHH:mm'))
+    close_time = acp_times.close_time(km, brevet_dist, arrow.get(start_time, 'YYYY-MM-DDTHH:mm')) #maybe end_time...
     result = {"open": open_time, "close": close_time}
     return flask.jsonify(result=result)
 
 
-@app.route('/insert/', method=['POST']) #where is this shit coming from?
+@app.route('/insert', method=['POST']) #where is this shit coming from?
 def insert(brevet_dist, start_time, checkpoints):
     try:
     checkpoints = request.json['checkpoints']
