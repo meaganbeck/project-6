@@ -7,16 +7,13 @@ from flask_restful import Resource
 # You need to implement this in database/models.py
 from database.models import Brevet
 
-class Brevet(Resource):
+class BrevetResource(Resource):
     def get(self, _id):
         brevet = Brevet.objects.get(id= _id).to_json()
-        #json = Brevet.objects().to_json()
-        #check later (dont know where these values are coming from so yeh
-        #return {'brevet_dist' : brevet_dist, 'start_time': start_time, controls :[{open_time: "open_time", close_time: "close_time", km: "km"]}, 200
         return = Response(brevet, mimetype="application/json", status=200)
-    def put(self, _id):
-            #input = request.get_json()
-            input = request.json
+   
+   def put(self, _id):
+            input = request.get_json()
             Brevet.objects.get(id=_id).update(**input_json)
             return '', 200
 

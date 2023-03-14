@@ -5,23 +5,23 @@ from flask import Response, request
 from flask_restful import Resource
 
 # You need to implement this in database/models.py
-from database.models import Brevet
+from database.models import Brevet 
+#FIXME
 
-class Brevets(Resource):
+class BrevetsResource(Resource):
     def get(self):
-        #objects?
-        json = Brevets.objects().to_json()
+        json = Brevet.objects().to_json()
         return Response(json,mimetype ="application/json", status =200 )
         #check later (dont know where these values are coming from so yeh
 
     def post(self):
+        input_json = request.json
+        #length = input_json["brevet_dist"]
+        #start_time = input_json["start_time"]
+        #checkpoints = input_json["checkpoints"]
+        result = Brevets(**input_json).save()
         
-        length = input_json["brevet_length"]
-        start_time = input_json["start_time"]
-        checkpoints = input_json["checkpoints"]
-        result = Brevet(**input_json).save()
-        
-        Brevet(length = length, start_time = start_time, checkpoints = checkpoints).save()
+        #Brevets(length = length, start_time = start_time, checkpoints = checkpoints).save()
         return {'_id':str(result.id)}, 200
 
 # MongoEngine queries:

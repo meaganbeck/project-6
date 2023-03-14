@@ -40,8 +40,8 @@ def insert_brevet(brevet_dist, start_time, checkpoints):
     _id  = requests.post(f"{API_URL}/brevets", json={"brevet_dist": brevet_dist, "start_time":start_time, "checkpoints" : checkpoints}).json()
     return _id
 
-
 @app.route("/")
+@app.route("/index")
 def index():
     app.logger.debug("Main page entry")
     return flask.render_template('calc.html')
@@ -78,11 +78,11 @@ def _calc_times():
 
 
 @app.route('/insert', method=['POST']) #where is this shit coming from?
-def insert(brevet_dist, start_time, checkpoints):
+def insert():
     try:
-    checkpoints = request.json['checkpoints']
-    start_time = request.json['start_time']
-    brevet_dist = request.json['brevet_dist']
+    checkpoints = request.json["checkpoints"]
+    start_time = request.json[:"start_time"]
+    brevet_dist = request.json["brevet_dist"]
 
     checkpoints_id = insert_brevet(brevet_dist, start_time, checkpoints)
     #db.insert_one(brevet_dist, start_time, controls)
@@ -102,11 +102,11 @@ def insert(brevet_dist, start_time, checkpoints):
 @app.route('/fetch')
 def fetch():
     try:
-        checkpoints, brevet_dist, start_time = get_brevet()
+        brevet_dist, start_time,checkpoints = get_brevet()
     #brevet_dist, start_time, items = db.find(item_doc)
     
         return flask.jsonify(
-            result = {'brevet_dist' : brevet_dist, 'start_time' : start_time, 'checkpoints' : checkpoints},
+            result = {"brevet_dist" : brevet_dist, "start_time" : start_time, "checkpoints" : checkpoints},
             status = 1,
             message = "got the data"
             )
