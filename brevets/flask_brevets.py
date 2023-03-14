@@ -8,7 +8,7 @@ import flask
 from flask import request
 import arrow  # Replacement for datetime, based on moment.js
 import acp_times  # Brevet time calculations
-from mymongo import insert_brevet, get_brevet
+#from mymongo import insert_brevet, get_brevet
 import config
 
 import logging
@@ -45,6 +45,11 @@ def insert_brevet(brevet_dist, start_time, checkpoints):
 def index():
     app.logger.debug("Main page entry")
     return flask.render_template('calc.html')
+
+@app.errorhandler(404)
+def page_not_found(error):
+    app.logger.debug("Page not found")
+    return flask.render_template('404.html'),404
 
 ###############
 #
