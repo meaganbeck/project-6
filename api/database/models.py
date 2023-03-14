@@ -25,4 +25,4 @@ class Brevet(Document):
     """
     length = FloatField(required = True)
     start_time = DateTimeField(required = True)
-    checkpoints = ListField(required = True, Checkpoint)
+    checkpoints = EmbeddedDocumentListField(Checkpoint, required=True)

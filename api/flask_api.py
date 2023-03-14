@@ -3,7 +3,6 @@ Brevets RESTful API
 """
 import os
 import logging
-import requests
 
 import flask
 from flask import Flask
@@ -12,8 +11,8 @@ from flask import request
 from flask_restful import Api
 from mongoengine import connect
  
-from resources.brevet import Brevet
-from resources.brevets import Brevets
+from resources.brevet import BrevetResource
+from resources.brevets import BrevetsResource
 
 # Connect MongoEngine to mongodb
 connect(host=f"mongodb://{os.environ['MONGODB_HOSTNAME']}:27017/brevetsdb")
@@ -27,8 +26,8 @@ app.logger.setLevel(logging.DEBUG)
 
 api = Api(app)
 
-api.add_resource(Brevet, "/api/brevet/<id>")
-api.add_resource(Brevets, "/api/brevets")
+api.add_resource(BrevetResource, "/api/brevet/<id>")
+api.add_resource(BrevetsResource, "/api/brevets")
 
 #API_ADDR= os.environ["API_ADDR"]
 #API_PORT = os.environ["API_PORT"]

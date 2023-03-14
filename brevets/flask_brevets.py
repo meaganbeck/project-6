@@ -3,7 +3,7 @@ Replacement for RUSA ACP brevet time calculator
 (see https://rusa.org/octime_acp.html)
 
 """
-
+import os
 import flask
 from flask import request
 import arrow  # Replacement for datetime, based on moment.js
@@ -82,14 +82,14 @@ def _calc_times():
     return flask.jsonify(result=result)
 
 
-@app.route('/insert', method=['POST']) #where is this shit coming from?
+@app.route('/insert', methods=['POST']) #where is this shit coming from?
 def insert():
     try:
-    checkpoints = request.json["checkpoints"]
-    start_time = request.json[:"start_time"]
-    brevet_dist = request.json["brevet_dist"]
+        checkpoints = request.json["checkpoints"]
+        start_time = request.json[:"start_time"]
+        brevet_dist = request.json["brevet_dist"]
 
-    checkpoints_id = insert_brevet(brevet_dist, start_time, checkpoints)
+        checkpoints_id = insert_brevet(brevet_dist, start_time, checkpoints)
     #db.insert_one(brevet_dist, start_time, controls)
         return flask.jsonify(
             result = {},
@@ -118,9 +118,10 @@ def fetch():
     except:
         return flask.jsonify(result = {"brevet_dist": 200, "start_time": arrow.now().format("YYY-MM-DDTHH:mm"), "checkpoints": []}, status = 0)
 
-app.debug = CONFIG.DEBUG
+app.debug = os.environ["DEBUG"]
 if app.debug:
     app.logger.setLevel(logging.DEBUG)
 
 if __name__ == "__main__":
-    app.run(port=portnum, host="0.0.0.0")
+    #app.run(port=os.environ["PORT"]CONFIG.PORT, host="0.0.0.0")
+    app.run(port=port_num, host="0.0.0.0")

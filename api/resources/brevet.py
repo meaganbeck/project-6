@@ -10,17 +10,17 @@ from database.models import Brevet
 class BrevetResource(Resource):
     def get(self, _id):
         brevet = Brevet.objects.get(id= _id).to_json()
-        return = Response(brevet, mimetype="application/json", status=200)
+        return Response(brevet, mimetype="application/json", status=200)
    
-   def put(self, _id):
-            input = request.get_json()
-            Brevet.objects.get(id=_id).update(**input_json)
-            return '', 200
+    def put(self, _id):
+        input = request.get_json()
+        Brevet.objects.get(id=_id).update(**input_json)
+        return '', 200
 
                 
     def delete(self, _id):
-            Brevet.objects.get(id = _id).delete()
-            return '',200
+        Brevet.objects.get(id = _id).delete()
+        return '',200
 
 
 # MongoEngine queries:
