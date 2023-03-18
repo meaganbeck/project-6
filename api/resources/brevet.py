@@ -13,7 +13,7 @@ class BrevetResource(Resource):
         return Response(brevet, mimetype="application/json", status=200)
    
     def put(self, _id):
-        input = request.get_json()
+        input_json = request.json
         Brevet.objects.get(id=_id).update(**input_json)
         return '', 200
 

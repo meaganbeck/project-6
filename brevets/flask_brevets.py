@@ -12,7 +12,8 @@ import acp_times  # Brevet time calculations
 import config
 
 import logging
-
+import json
+import requests
 ###
 # Globals
 ###
@@ -20,7 +21,7 @@ app = flask.Flask(__name__)
 app.debug = True if "DEBUG" not in os.environ else os.environ["DEBUG"]
 port_num = True if "PORT" not in os.environ else os.environ["PORT"]
 app.logger.setLevel(logging.DEBUG)
-CONFIG = config.configuration()
+#CONFIG = config.configuration()
 
 API_ADDR= os.environ["API_ADDR"]
 API_PORT = os.environ["API_PORT"]
@@ -29,10 +30,8 @@ API_URL = f"http://{API_ADDR}:{API_PORT}/api/"
 
 #---------------------------------
 
-def get_brevet():
-    
+def get_brevet():    
     checkpoints = requests.get(f"{API_URL}/brevets").json() 
-
     brevets = checkpoints[-1]
     return brevets["brevet_dist"], brevets["start_time"], brevets["checkpoints"]
 
@@ -49,7 +48,7 @@ def index():
 @app.errorhandler(404)
 def page_not_found(error):
     app.logger.debug("Page not found")
-    return flask.render_template('404.html'),404
+    return flask.render_template('404.html'), 404
 
 ###############
 #
@@ -118,9 +117,9 @@ def fetch():
     except:
         return flask.jsonify(result = {"brevet_dist": 200, "start_time": arrow.now().format("YYY-MM-DDTHH:mm"), "checkpoints": []}, status = 0)
 
-app.debug = os.environ["DEBUG"]
-if app.debug:
-    app.logger.setLevel(logging.DEBUG)
+#app.debug = os.environ["DEBUG"]
+#if app.debug:
+#    app.logger.setLevel(logging.DEBUG)
 
 if __name__ == "__main__":
     #app.run(port=os.environ["PORT"]CONFIG.PORT, host="0.0.0.0")

@@ -4,7 +4,7 @@ Brevets RESTful API
 import os
 import logging
 
-import flask
+#import flask
 from flask import Flask
 from flask import request
 
@@ -26,7 +26,7 @@ app.logger.setLevel(logging.DEBUG)
 
 api = Api(app)
 
-api.add_resource(BrevetResource, "/api/brevet/<id>")
+api.add_resource(BrevetResource, "/api/brevet/<_id>")
 api.add_resource(BrevetsResource, "/api/brevets")
 
 #API_ADDR= os.environ["API_ADDR"]
