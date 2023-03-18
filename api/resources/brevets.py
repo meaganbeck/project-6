@@ -19,7 +19,7 @@ class BrevetsResource(Resource):
         #length = input_json["brevet_dist"]
         #start_time = input_json["start_time"]
         #checkpoints = input_json["checkpoints"]
-        result = Brevets(**input_json).save()
+        result = Brevet(**input_json).save()
         
         #Brevets(length = length, start_time = start_time, checkpoints = checkpoints).save()
         return {'_id':str(result.id)}, 200
